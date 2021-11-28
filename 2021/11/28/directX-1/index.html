@@ -20,29 +20,33 @@
     var CONFIG = {"hostname":"ximengcs.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="归来仍是少年">
-<meta property="og:url" content="https://ximengcs.github.io/ximengcs.github.io/index.html">
+  <meta name="description" content="向量介绍DirectXMath是DirectX专用数学库，是Windows SDK的一部分。 采用了128位宽的单指令多数据流(SSE2)寄存器来处理数学运算，所以一条SSE2指定就可以同时处理4个32位的浮点数或整数。 头文件DirectXMath头文件：DirectXMath.h DirectXMath所需的数据类型：DirectXPackedVector.h 文件中的代码都存在于Direct">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DirectX 数学库 - 向量">
+<meta property="og:url" content="https://ximengcs.github.io/ximengcs.github.io/2021/11/28/directX-1/index.html">
 <meta property="og:site_name" content="归来仍是少年">
+<meta property="og:description" content="向量介绍DirectXMath是DirectX专用数学库，是Windows SDK的一部分。 采用了128位宽的单指令多数据流(SSE2)寄存器来处理数学运算，所以一条SSE2指定就可以同时处理4个32位的浮点数或整数。 头文件DirectXMath头文件：DirectXMath.h DirectXMath所需的数据类型：DirectXPackedVector.h 文件中的代码都存在于Direct">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-11-28T10:45:16.000Z">
+<meta property="article:modified_time" content="2021-11-28T16:34:32.703Z">
 <meta property="article:author" content="蒙">
-<meta property="article:tag" content="关键字1, 关键字2">
+<meta property="article:tag" content="DirectX">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://ximengcs.github.io/ximengcs.github.io/">
+<link rel="canonical" href="https://ximengcs.github.io/ximengcs.github.io/2021/11/28/directX-1/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>归来仍是少年</title>
+  <title>DirectX 数学库 - 向量 | 归来仍是少年</title>
   
 
 
@@ -151,9 +155,10 @@
         <div class="content-wrap">
           
 
-          <div class="content index posts-expand">
+          <div class="content post posts-expand">
             
-      
+
+    
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
@@ -169,10 +174,9 @@
       <meta itemprop="name" content="归来仍是少年">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/28/directX-1/" class="post-title-link" itemprop="url">DirectX 数学库 - 向量</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          DirectX 数学库 - 向量
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -211,7 +215,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="向量"><a href="#向量" class="headerlink" title="向量"></a>向量</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p><strong>DirectXMath</strong>是DirectX专用数学库，是Windows SDK的一部分。</p>
+        <h2 id="向量"><a href="#向量" class="headerlink" title="向量"></a>向量</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p><strong>DirectXMath</strong>是DirectX专用数学库，是Windows SDK的一部分。</p>
 <p>采用了128位宽的单指令多数据流(SSE2)寄存器来处理数学运算，所以一条SSE2指定就可以同时处理4个32位的浮点数或整数。</p>
 <h3 id="头文件"><a href="#头文件" class="headerlink" title="头文件"></a>头文件</h3><p>DirectXMath头文件：DirectXMath.h</p>
 <p>DirectXMath所需的数据类型：DirectXPackedVector.h</p>
@@ -219,304 +223,72 @@
 <h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>x86平台：需要启用SSE2指令集</p>
 <p>Project Properties -&gt; Configuration Properties -&gt; C/C++ -&gt; Code Generation -&gt; Enable Enhanced Instruction Set</p>
 <p>x64平台：无需额外操作，所有x64平台CPU都对SSE2指令集支持</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/11/28/directX-1/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
+<span id="more"></span>
+
+<h3 id="常用类型"><a href="#常用类型" class="headerlink" title="常用类型"></a>常用类型</h3><h4 id="向量-1"><a href="#向量-1" class="headerlink" title="向量"></a>向量</h4><h5 id="核心向量类型-XMVECTOR"><a href="#核心向量类型-XMVECTOR" class="headerlink" title="核心向量类型 XMVECTOR"></a>核心向量类型 XMVECTOR</h5><p>此类型将被映射到SIMD寄存器，充分发挥SSE2的处理能力(需要使用XMVECTOR类型来运算)。</p>
+<p>需要按16字节(128位)对齐，对于<strong>局部变量</strong>和<strong>全局变量</strong>是自动实现的，而类中的数据成员建议使用<strong>XMFLOAT2</strong>, <strong>XMFLOAT3</strong>, <strong>XMFLOAT4</strong>代替，<strong>常向量</strong>用<strong>XMVECTORF32</strong>类型表示。</p>
+<p>运算时需要将XMFLOAT2, 3, 4转换为<strong>XMVECTOR2, 3, 4</strong>来运算，而存储时反之。</p>
+<p>加载:</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">XMVECTOR XM_CALLCONV XMLoadFloat2(<span class="keyword">const</span> XMFLOAT2 *pSource);</span><br><span class="line">XMVECTOR XM_CALLCONV XMLoadFloat3(<span class="keyword">const</span> XMFLOAT3 *pSource);</span><br><span class="line">XMVECTOR XM_CALLCONV XMLoadFloat4(<span class="keyword">const</span> XMFLOAT4 *pSource);</span><br></pre></td></tr></table></figure>
+
+<p>存储:</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">void</span> XM_CALLCONV XMStoreFloat<span class="number">2</span>(XMFLOAT<span class="number">2</span> *pDestination, FXMVECTOR V);</span><br><span class="line"><span class="attribute">void</span> XM_CALLCONV XMStoreFloat<span class="number">3</span>(XMFLOAT<span class="number">3</span> *pDestination, FXMVECTOR V);</span><br><span class="line"><span class="attribute">void</span> XM_CALLCONV XMStoreFloat<span class="number">4</span>(XMFLOAT<span class="number">4</span> *pDestination, FXMVECTOR V);</span><br></pre></td></tr></table></figure>
+
+<p>获取某一分量:</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">float</span> XM_CALLCONV <span class="title">XMVectorGetX</span><span class="params">(FXMVECTOR V)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">float</span> XM_CALLCONV <span class="title">XMVectorGetY</span><span class="params">(FXMVECTOR V)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">float</span> XM_CALLCONV <span class="title">XMVectorGetZ</span><span class="params">(FXMVECTOR V)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">float</span> XM_CALLCONV <span class="title">XMVectorGetW</span><span class="params">(FXMVECTOR V)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>某一分量转换:</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">XMVECTOR XM_CALLCONV <span class="constructor">XMVectorSetX(FXMVECTOR V, <span class="params">float</span> <span class="params">x</span>)</span>;</span><br><span class="line">XMVECTOR XM_CALLCONV <span class="constructor">XMVectorSetY(FXMVECTOR V, <span class="params">float</span> <span class="params">y</span>)</span>;</span><br><span class="line">XMVECTOR XM_CALLCONV <span class="constructor">XMVectorSetZ(FXMVECTOR V, <span class="params">float</span> <span class="params">z</span>)</span>;</span><br><span class="line">XMVECTOR XM_CALLCONV <span class="constructor">XMVectorSetW(FXMVECTOR V, <span class="params">float</span> <span class="params">w</span>)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>以上<strong>XM_CALLCONV</strong>是约定注解，它会根据编译器的版本确定对应的调用约定属性:</p>
+<p>FXMVECTOR, GXMVECTOR, HXMVECTOR, CXMVECTOR</p>
+<p>也就是说用这4中类型作为参数传递时，并且函数有<strong>XM_CALLCONV</strong>约定注解，会直接传送至SSE的寄存器中而不是栈中。</p>
+<p>具体传递时的规则:</p>
+<p>1.前三个XMVECTOR参数用FXMVECTOR</p>
+<p>2.第四个XMVECTOR参数用GXMVECTOR</p>
+<p>3.第5，6个XMVECTOR参数用HXMVECTOR</p>
+<p>4.其余的XMVECTOR参数用XCMVECTOR</p>
+<p><strong>构造函数</strong>传递时的规则:</p>
+<p>1.前三个XMVECTOR参数用FXMVECTOR</p>
+<p>2.其余XMVECTOR参数用XCMVECTOR</p>
+<p>3.不需要使用XM_CALLCONV注解</p>
+<p>此外，这些参数中可以参杂其他数据类型，并且这些规则只适用于输入参数。</p>
+<p>如:</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void <span class="constructor">Example(FXMVECTOR <span class="params">param1</span>, <span class="params">float</span> <span class="params">x</span>, <span class="params">int</span> <span class="params">y</span>, FXMVECTOR <span class="params">param4</span>, FXMVECTOR <span class="params">param5</span>, GXMVECTOR <span class="params">param6</span>)</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h3><p>浮点数在计算机中计算时会存在误差，所以在比较浮点数时需要注意。</p>
+<p>Epsilon是针对这个问题定义的容差，比较时如果 <strong>float1 == float1 + epsilon</strong> 则认为两个浮点数是相等的，</p>
+<p>这个概念类似数学上的无穷小。</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">const <span class="built_in">float</span> Epsilon = <span class="number">0.001</span>f;</span><br><span class="line"><span class="built_in">float</span> value1 = <span class="number">1.0</span>f;</span><br><span class="line"><span class="built_in">float</span> value2 = <span class="number">0.99999994</span>f;</span><br><span class="line"><span class="keyword">if</span>(<span class="constructor">XMVector3NearEqual(XMVectorReplicate(<span class="params">value1</span>)</span>, <span class="constructor">XMVectorReplicate(<span class="params">value2</span>)</span>, <span class="constructor">XMVectorReplicate(Epsilon)</span>)</span><br><span class="line">&#123;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;value1 equals to value2&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/DirectX/" rel="tag"># DirectX</a>
+          </div>
+
         
-      
-    </div>
 
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/28/pixel-2/" rel="prev" title="城堡像素画">
+      <i class="fa fa-chevron-left"></i> 城堡像素画
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
       </footer>
+    
   </article>
   
   
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://ximengcs.github.io/ximengcs.github.io/2021/11/28/pixel-2/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="蒙">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="归来仍是少年">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/28/pixel-2/" class="post-title-link" itemprop="url">城堡像素画</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-11-28 16:50:48 / 修改时间：16:55:51" itemprop="dateCreated datePublished" datetime="2021-11-28T16:50:48+08:00">2021-11-28</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%83%8F%E7%B4%A0/" itemprop="url" rel="index"><span itemprop="name">像素</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>临摹了一副中世纪风格的像素画，看起来还不错，比之前进步了，还有很多细节需要学习。</p>
-<p>现在画云彩已经有一些小技巧，画的时候用4个像素左右的像素簇来点缀，画完之后用1个像素的画笔修饰，感觉很不错。</p>
-<img src="/2021/11/28/pixel-2/dream20.png" class="" title="复古城堡">
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://ximengcs.github.io/ximengcs.github.io/2021/11/28/pixel-1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="蒙">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="归来仍是少年">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/28/pixel-1/" class="post-title-link" itemprop="url">落叶树像素画</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-11-28 15:26:09 / 修改时间：15:31:08" itemprop="dateCreated datePublished" datetime="2021-11-28T15:26:09+08:00">2021-11-28</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%83%8F%E7%B4%A0/" itemprop="url" rel="index"><span itemprop="name">像素</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>第一幅看起来还不错的落叶树像素画。</p>
-<img src="/2021/11/28/pixel-1/satisfy1.png" class="" title="落叶树">
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://ximengcs.github.io/ximengcs.github.io/2021/11/28/fight-1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="蒙">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="归来仍是少年">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/28/fight-1/" class="post-title-link" itemprop="url">努力</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-11-28 15:02:36 / 修改时间：15:05:45" itemprop="dateCreated datePublished" datetime="2021-11-28T15:02:36+08:00">2021-11-28</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%A2%A6%E6%83%B3/" itemprop="url" rel="index"><span itemprop="name">梦想</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>但请你相信，只要坚持下去，美好的事情一定会到来。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://ximengcs.github.io/ximengcs.github.io/2021/11/28/fighting/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="蒙">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="归来仍是少年">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/28/fighting/" class="post-title-link" itemprop="url">加油，少年!</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-11-28 02:33:16 / 修改时间：02:52:12" itemprop="dateCreated datePublished" datetime="2021-11-28T02:33:16+08:00">2021-11-28</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%A2%A6%E6%83%B3/" itemprop="url" rel="index"><span itemprop="name">梦想</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>现在是2021年11月28日凌晨2点37分，花了点时间把博客弄好了，之后学习时就可以在这里记录，写笔记了。加油，少年!</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-
   
 
 
@@ -569,6 +341,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%91%E9%87%8F"><span class="nav-number">1.</span> <span class="nav-text">向量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%B4%E6%96%87%E4%BB%B6"><span class="nav-number">1.2.</span> <span class="nav-text">头文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.4.</span> <span class="nav-text">常用类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%91%E9%87%8F-1"><span class="nav-number">1.4.1.</span> <span class="nav-text">向量</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E5%90%91%E9%87%8F%E7%B1%BB%E5%9E%8B-XMVECTOR"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">核心向量类型 XMVECTOR</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="nav-number">1.5.</span> <span class="nav-text">注意点</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
