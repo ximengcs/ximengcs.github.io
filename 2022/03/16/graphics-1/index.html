@@ -20,20 +20,26 @@
     var CONFIG = {"hostname":"ximengcs.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="但请你相信，只要坚持下去，美好的事情一定会到来。">
+  <meta name="description" content="游戏场景中的物体从建模到呈现到显示器上有一系列过程，其中核心部分就是顶点的变换。 物体模型空间(Model Space)也就是建模空间，物体的建模时本地坐标空间 世界空间(World Space)物体经过世界矩阵 的变换后进入的空间，每个物体都有一个自己的世界矩阵，用来变换到世界空间中">
 <meta property="og:type" content="article">
-<meta property="og:title" content="努力">
-<meta property="og:url" content="https://ximengcs.github.io/ximengcs.github.io/2021/11/28/fight-1/index.html">
+<meta property="og:title" content="图形学-空间变换的学习和思考">
+<meta property="og:url" content="https://ximengcs.github.io/ximengcs.github.io/2022/03/16/graphics-1/index.html">
 <meta property="og:site_name" content="归来仍是少年">
-<meta property="og:description" content="但请你相信，只要坚持下去，美好的事情一定会到来。">
+<meta property="og:description" content="游戏场景中的物体从建模到呈现到显示器上有一系列过程，其中核心部分就是顶点的变换。 物体模型空间(Model Space)也就是建模空间，物体的建模时本地坐标空间 世界空间(World Space)物体经过世界矩阵 的变换后进入的空间，每个物体都有一个自己的世界矩阵，用来变换到世界空间中">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-11-28T07:02:36.000Z">
-<meta property="article:modified_time" content="2021-11-28T07:05:45.783Z">
+<meta property="og:image" content="https://ximengcs.github.io/2022/03/16/graphics-1/ws.png">
+<meta property="og:image" content="https://ximengcs.github.io/2022/03/16/graphics-1/wstf.png">
+<meta property="og:image" content="https://ximengcs.github.io/2022/03/16/graphics-1/wstfrt.png">
+<meta property="og:image" content="https://ximengcs.github.io/2022/03/16/graphics-1/vspj.png">
+<meta property="og:image" content="https://ximengcs.github.io/2022/03/16/graphics-1/wstf2.png">
+<meta property="article:published_time" content="2022-03-16T13:43:41.000Z">
+<meta property="article:modified_time" content="2022-03-16T15:28:04.764Z">
 <meta property="article:author" content="蒙">
-<meta property="article:tag" content="加油">
+<meta property="article:tag" content="变换">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ximengcs.github.io/2022/03/16/graphics-1/ws.png">
 
-<link rel="canonical" href="https://ximengcs.github.io/ximengcs.github.io/2021/11/28/fight-1/">
+<link rel="canonical" href="https://ximengcs.github.io/ximengcs.github.io/2022/03/16/graphics-1/">
 
 
 <script id="page-configurations">
@@ -46,7 +52,7 @@
   };
 </script>
 
-  <title>努力 | 归来仍是少年</title>
+  <title>图形学-空间变换的学习和思考 | 归来仍是少年</title>
   
 
 
@@ -162,7 +168,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://ximengcs.github.io/ximengcs.github.io/2021/11/28/fight-1/">
+    <link itemprop="mainEntityOfPage" href="https://ximengcs.github.io/ximengcs.github.io/2022/03/16/graphics-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -175,7 +181,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          努力
+          图形学-空间变换的学习和思考
         </h1>
 
         <div class="post-meta">
@@ -186,7 +192,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-11-28 15:02:36 / 修改时间：15:05:45" itemprop="dateCreated datePublished" datetime="2021-11-28T15:02:36+08:00">2021-11-28</time>
+              <time title="创建时间：2022-03-16 21:43:41 / 修改时间：23:28:04" itemprop="dateCreated datePublished" datetime="2022-03-16T21:43:41+08:00">2022-03-16</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -194,7 +200,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%A2%A6%E6%83%B3/" itemprop="url" rel="index"><span itemprop="name">梦想</span></a>
+                  <a href="/categories/%E5%9B%BE%E5%BD%A2%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">图形学</span></a>
                 </span>
             </span>
 
@@ -209,7 +215,26 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>但请你相信，只要坚持下去，美好的事情一定会到来。</p>
+        <p>游戏场景中的物体从建模到呈现到显示器上有一系列过程，其中核心部分就是顶点的变换。</p>
+<h2 id="物体模型空间-Model-Space"><a href="#物体模型空间-Model-Space" class="headerlink" title="物体模型空间(Model Space)"></a>物体模型空间(Model Space)</h2><p>也就是建模空间，物体的建模时本地坐标空间</p>
+<h2 id="世界空间-World-Space"><a href="#世界空间-World-Space" class="headerlink" title="世界空间(World Space)"></a>世界空间(World Space)</h2><p>物体经过<em>世界矩阵</em> 的变换后进入的空间，每个物体都有一个自己的世界矩阵，用来变换到世界空间中</p>
+<img src="/2022/03/16/graphics-1/ws.png" class="" title="世界矩阵">
+<span id="more"></span>
+<p>物体的坐标，旋转和缩放表示了物体的变换</p>
+<img src="/2022/03/16/graphics-1/wstf.png" class="" title="世界矩阵">
+
+<p><strong>旋转矩阵</strong><br>绕X轴旋转(X坐标不动，在YZ平面旋转)</p>
+<img src="/2022/03/16/graphics-1/wstfrt.png" class="" title="世界矩阵">
+<p>绕Y轴旋转和绕Z轴旋转同理，最后将三个矩阵相乘就可以得到世界矩阵。矩阵乘法是有先后顺序的，也就是不具有交换律，所以先运算哪个矩阵就决定着先围绕哪个轴旋转，这种旋转方法可能会引发万向节死锁的问题。</p>
+<p><strong>缩放矩阵</strong><br>缩放矩阵很好理解，就是每个坐标的缩放值<br>[<br>    Sx  0   0<br>    0   Sy  0<br>    0   0   Sz<br>]<br>每个列向量就可以理解为变换的基向量对各个坐标的影响，如[Sx 0 0]可理解为变换基向量X对变换后的X缩放为Sx*X倍，对Y和Z的影响为0</p>
+<p><strong>平移变换</strong><br>平移变换不是线性变换，三维矩阵不能表示三维向量的平移变换，所以这里引入齐次的概念，添加一维来扩展到平移变换，为了方便和旋转矩阵，缩放矩阵相乘为一个矩阵，方便统一处理</p>
+<h2 id="相机空间-View-Space"><a href="#相机空间-View-Space" class="headerlink" title="相机空间(View Space)"></a>相机空间(View Space)</h2><p>物体放置在场景上了，需要从一个视角来“观察”，这个视角就是摄像机，相机空间也就是以相机为原点的坐标空间。将坐标从<strong>世界空间</strong>变换到相机空间也是通过矩阵来完成，这个矩阵即相机空间。<br>将相机空间的坐标变换到世界空间也就是进行一次仿射变换（旋转，缩放，平移），那么将世界坐标变换到相机空间就是相反的操作求逆，只需要求出这个逆矩阵就可变换。<br>世界空间到相机空间的计算：</p>
+<img src="/2022/03/16/graphics-1/vspj.png" class="" title="世界矩阵">
+<img src="/2022/03/16/graphics-1/wstf2.png" class="" title="世界矩阵">
+<p>只需要知道相机的Z轴，也就是观察方向，然后求出 相机原点到世界原点的向量PO和Z向量的叉积，即可求出Y轴基向量，然后再求出Z轴和Y轴的叉积就可求出X轴。<br>有了相机的基向量就可得到变换矩阵[i, j, k]，再求逆就可求出视图矩阵</p>
+<h2 id="裁剪空间-Clip-Space"><a href="#裁剪空间-Clip-Space" class="headerlink" title="裁剪空间(Clip Space)"></a>裁剪空间(Clip Space)</h2><p>相机空间中只有在“视野”范围内的物体才会被渲染，在视野范围外的物体不应该被处理，所以需要剔除，裁剪空间中的物体就是要被渲染的物体，裁剪空间外的物体将会被剔除。<br>而裁剪矩阵的作用就是将相机空间的坐标变换到裁剪空间，实际上就是变换到坐标的投影处。常用的投影矩阵是正交矩阵和透视矩阵。正交矩阵投影到的空间直接就对应归一化坐标空间，透视矩阵投影到的空间是(x’z, y’z, z’z, z)，除以w之后也是归一化坐标空间。</p>
+<h2 id="归一化坐标空间-NDC-Space"><a href="#归一化坐标空间-NDC-Space" class="headerlink" title="归一化坐标空间(NDC Space)"></a>归一化坐标空间(NDC Space)</h2><p>一般将 -1 &lt;= x &lt;= 1， -1 &lt;= y &lt;= 1, 0 &lt;= z &lt;= 1定义为归一化坐标空间，以方便变换到屏幕空间</p>
+<h2 id="屏幕空间"><a href="#屏幕空间" class="headerlink" title="屏幕空间"></a>屏幕空间</h2><p>经过视口变换的空间就是屏幕空间</p>
 
     </div>
 
@@ -219,7 +244,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E5%8A%A0%E6%B2%B9/" rel="tag"># 加油</a>
+              <a href="/tags/%E5%8F%98%E6%8D%A2/" rel="tag"># 变换</a>
           </div>
 
         
@@ -228,13 +253,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/11/28/fighting/" rel="prev" title="加油，少年!">
-      <i class="fa fa-chevron-left"></i> 加油，少年!
+    <a href="/2021/12/21/pixel-15/" rel="prev" title="像素画-小物件">
+      <i class="fa fa-chevron-left"></i> 像素画-小物件
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2021/11/28/pixel-1/" rel="next" title="落叶树像素画">
-      落叶树像素画 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -293,6 +315,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%A9%E4%BD%93%E6%A8%A1%E5%9E%8B%E7%A9%BA%E9%97%B4-Model-Space"><span class="nav-number">1.</span> <span class="nav-text">物体模型空间(Model Space)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%96%E7%95%8C%E7%A9%BA%E9%97%B4-World-Space"><span class="nav-number">2.</span> <span class="nav-text">世界空间(World Space)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E6%9C%BA%E7%A9%BA%E9%97%B4-View-Space"><span class="nav-number">3.</span> <span class="nav-text">相机空间(View Space)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A3%81%E5%89%AA%E7%A9%BA%E9%97%B4-Clip-Space"><span class="nav-number">4.</span> <span class="nav-text">裁剪空间(Clip Space)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BD%92%E4%B8%80%E5%8C%96%E5%9D%90%E6%A0%87%E7%A9%BA%E9%97%B4-NDC-Space"><span class="nav-number">5.</span> <span class="nav-text">归一化坐标空间(NDC Space)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B1%8F%E5%B9%95%E7%A9%BA%E9%97%B4"><span class="nav-number">6.</span> <span class="nav-text">屏幕空间</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
