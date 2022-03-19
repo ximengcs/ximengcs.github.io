@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ximengcs.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="关于GameFramework对FGUI的扩展的思考GameFramwork简称 GF, UnityGameFramework简称UGFGF的Demo中有对UGUI支持，在UGUI中一个界面就对应一个Unity预制件资源，而GF中也是将资源和对应的UI界面挂钩：在UGF中打开UI界面是直接传入UI资源名: 1UIComponent.UIManager.OpenUIForm(uiFormAssetN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GameFramework框架扩展-FGUI">
+<meta property="og:url" content="https://ximengcs.github.io/ximengcs.github.io/2022/03/19/GF-ui-fgui-1/index.html">
+<meta property="og:site_name" content="归来仍是少年">
+<meta property="og:description" content="关于GameFramework对FGUI的扩展的思考GameFramwork简称 GF, UnityGameFramework简称UGFGF的Demo中有对UGUI支持，在UGUI中一个界面就对应一个Unity预制件资源，而GF中也是将资源和对应的UI界面挂钩：在UGF中打开UI界面是直接传入UI资源名: 1UIComponent.UIManager.OpenUIForm(uiFormAssetN">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-03-19T07:57:34.000Z">
+<meta property="article:modified_time" content="2022-03-19T08:40:18.523Z">
+<meta property="article:author" content="蒙">
+<meta property="article:tag" content="GameFramework">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ximengcs.github.io/ximengcs.github.io/2022/03/19/GF-ui-fgui-1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>GameFramework框架扩展-FGUI | 归来仍是少年</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">归来仍是少年</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">种下一颗树最好的时间是十年前，其次就是现在。</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ximengcs.github.io/ximengcs.github.io/2022/03/19/GF-ui-fgui-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="蒙">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="归来仍是少年">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          GameFramework框架扩展-FGUI
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-03-19 15:57:34 / 修改时间：16:40:18" itemprop="dateCreated datePublished" datetime="2022-03-19T15:57:34+08:00">2022-03-19</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/GameFramework/" itemprop="url" rel="index"><span itemprop="name">GameFramework</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="关于GameFramework对FGUI的扩展的思考"><a href="#关于GameFramework对FGUI的扩展的思考" class="headerlink" title="关于GameFramework对FGUI的扩展的思考"></a>关于GameFramework对FGUI的扩展的思考</h2><p><strong>GameFramwork简称 GF, UnityGameFramework简称UGF</strong><br>GF的Demo中有对UGUI支持，在UGUI中一个界面就对应一个Unity预制件资源，而GF中也是将资源和对应的UI界面挂钩：<br>在UGF中打开UI界面是直接传入UI资源名:</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UIComponent.UIManager.<span class="constructor">OpenUIForm(<span class="params">uiFormAssetName</span>, <span class="params">uiGroupName</span>, <span class="params">priority</span>, <span class="params">userData</span>)</span>;</span><br></pre></td></tr></table></figure>
+<p>而在GF中底层架构中的UIManager打开UIForm的具体实现:</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public <span class="built_in">int</span> <span class="constructor">OpenUIForm(<span class="params">string</span> <span class="params">uiFormAssetName</span>, <span class="params">string</span> <span class="params">uiGroupName</span>, <span class="params">int</span> <span class="params">priority</span>, <span class="params">bool</span> <span class="params">pauseCoveredUIForm</span>, <span class="params">object</span> <span class="params">userData</span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">int</span> serialId = ++m_Serial;</span><br><span class="line">            UIFormInstanceObject uiFormInstanceObject = m_InstancePool.<span class="constructor">Spawn(<span class="params">uiFormAssetName</span>)</span>;</span><br><span class="line">            <span class="keyword">if</span> (uiFormInstanceObject<span class="operator"> == </span>null)</span><br><span class="line">            &#123;</span><br><span class="line">                m_UIFormsBeingLoaded.<span class="constructor">Add(<span class="params">serialId</span>, <span class="params">uiFormAssetName</span>)</span>;</span><br><span class="line">                m_ResourceManager.<span class="constructor">LoadAsset(<span class="params">uiFormAssetName</span>, <span class="params">priority</span>, <span class="params">m_LoadAssetCallbacks</span>, OpenUIFormInfo.Create(<span class="params">serialId</span>, <span class="params">uiFormAssetName</span>, <span class="params">uiGroup</span>, <span class="params">pauseCoveredUIForm</span>, <span class="params">userData</span>)</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="constructor">InternalOpenUIForm(<span class="params">serialId</span>, <span class="params">uiFormAssetName</span>, <span class="params">uiGroup</span>, <span class="params">uiFormInstanceObject</span>.Target, <span class="params">pauseCoveredUIForm</span>, <span class="params">false</span>, 0f, <span class="params">userData</span>)</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            return serialId;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<span id="more"></span>
+
+<p>可以看出在打开UIForm时会使用对象池，如果池子中没有对象时就会调用ResourceManager的加载资源的方法加载传入的资源名，也即UI资源和UI是绑定的关系<br>这在UGUI下没有任何问题，可是在FUGI下UI对象和UI资源并不是这样的关系，FGUI下通常是整个UI项目描述文件和整个UI图集分别存储的，而UI对象是GObject，它只是整个资源文件(UI项目描述文件XML)的其中一个UI，在这种情况下，这种打开UI的方式就不太合适了，如果不更改GF中的接口，只是写个FGUI的UIFormHelper的话，每次就要在data中传入一个名称并且UIFormHelper的InstantiateUIForm方法将每次都会收到同样的资源对象，因为FGUI多个UI项目是都在一个描述文件中的，这样虽然也能实现，但不是很合理。</p>
+<h2 id="我的想法"><a href="#我的想法" class="headerlink" title="我的想法:"></a>我的想法:</h2><p>首先更改GF的OpenUIForm接口，添加一个UIName，这样就可以将UI和UI资源解绑了，然后在UGF的FGUIHelper中实现三个接口逻辑上就较为合理了，而且这样并不影响UGUI的任何接口。<br>在GF的OpenUIForm:</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public <span class="built_in">int</span> <span class="constructor">OpenUIForm(<span class="params">string</span> <span class="params">uiFormName</span>, <span class="params">string</span> <span class="params">uiFormAssetName</span>, <span class="params">string</span> <span class="params">uiGroupName</span>, <span class="params">int</span> <span class="params">priority</span>, <span class="params">bool</span> <span class="params">pauseCoveredUIForm</span>, <span class="params">object</span> <span class="params">userData</span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">int</span> serialId = ++m_Serial;</span><br><span class="line">            UIFormInstanceObject uiFormInstanceObject = m_InstancePool.<span class="constructor">Spawn(<span class="params">uiFormName</span>)</span>;</span><br><span class="line">            <span class="keyword">if</span> (uiFormInstanceObject<span class="operator"> == </span>null)</span><br><span class="line">            &#123;</span><br><span class="line">                m_UIFormsBeingLoaded.<span class="constructor">Add(<span class="params">serialId</span>, <span class="params">uiFormAssetName</span>)</span>;</span><br><span class="line">                m_ResourceManager.<span class="constructor">LoadAsset(<span class="params">uiFormAssetName</span>, <span class="params">priority</span>, <span class="params">m_LoadAssetCallbacks</span>, OpenUIFormInfo.Create(<span class="params">serialId</span>, <span class="params">uiFormName</span>, <span class="params">uiGroup</span>, <span class="params">pauseCoveredUIForm</span>, <span class="params">userData</span>)</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="constructor">InternalOpenUIForm(<span class="params">serialId</span>, <span class="params">uiFormAssetName</span>, <span class="params">uiGroup</span>, <span class="params">uiFormInstanceObject</span>.Target, <span class="params">pauseCoveredUIForm</span>, <span class="params">false</span>, 0f, <span class="params">userData</span>)</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            return serialId;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>传入UI名，接着在池中没有对象时传入将Name保存在info中待资源加载完成(因为GF的资源加载本身也有缓存池，所以并不担心重复读取资源)后，将UI名一同传入UIFormHelper的InstantiateUIForm中，<br>UI资源加载回调方法的更改：</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> void <span class="constructor">LoadAssetSuccessCallback(<span class="params">string</span> <span class="params">uiFormAssetName</span>, <span class="params">object</span> <span class="params">uiFormAsset</span>, <span class="params">float</span> <span class="params">duration</span>, <span class="params">object</span> <span class="params">userData</span>)</span></span><br><span class="line">        &#123;</span><br><span class="line">            OpenUIFormInfo openUIFormInfo = (OpenUIFormInfo)userData;</span><br><span class="line">            <span class="keyword">if</span> (openUIFormInfo<span class="operator"> == </span>null)</span><br><span class="line">            &#123;</span><br><span class="line">                throw <span class="keyword">new</span> <span class="constructor">GameFrameworkException(<span class="string">&quot;Open UI form info is invalid.&quot;</span>)</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (m_UIFormsToReleaseOnLoad.<span class="constructor">Contains(<span class="params">openUIFormInfo</span>.SerialId)</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                m_UIFormsToReleaseOnLoad.<span class="constructor">Remove(<span class="params">openUIFormInfo</span>.SerialId)</span>;</span><br><span class="line">                ReferencePool.<span class="constructor">Release(<span class="params">openUIFormInfo</span>)</span>;</span><br><span class="line">                m_UIFormHelper.<span class="constructor">ReleaseUIForm(<span class="params">uiFormAsset</span>, <span class="params">null</span>)</span>;</span><br><span class="line">                return;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            m_UIFormsBeingLoaded.<span class="constructor">Remove(<span class="params">openUIFormInfo</span>.SerialId)</span>;</span><br><span class="line">            UIFormInstanceObject uiFormInstanceObject = UIFormInstanceObject.<span class="constructor">Create(<span class="params">uiFormAssetName</span>, <span class="params">uiFormAsset</span>, <span class="params">m_UIFormHelper</span>.InstantiateUIForm(<span class="params">openUIFormInfo</span>.Name, <span class="params">uiFormAsset</span>)</span>, m_UIFormHelper);</span><br><span class="line">            m_InstancePool.<span class="constructor">Register(<span class="params">uiFormInstanceObject</span>, <span class="params">true</span>)</span>;</span><br><span class="line"></span><br><span class="line">            <span class="constructor">InternalOpenUIForm(<span class="params">openUIFormInfo</span>.SerialId, <span class="params">uiFormAssetName</span>, <span class="params">openUIFormInfo</span>.UIGroup, <span class="params">uiFormInstanceObject</span>.Target, <span class="params">openUIFormInfo</span>.PauseCoveredUIForm, <span class="params">true</span>, <span class="params">duration</span>, <span class="params">openUIFormInfo</span>.UserData)</span>;</span><br><span class="line">            ReferencePool.<span class="constructor">Release(<span class="params">openUIFormInfo</span>)</span>;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>关键在于</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UIFormInstanceObject uiFormInstanceObject = UIFormInstanceObject.<span class="constructor">Create(<span class="params">uiFormAssetName</span>, <span class="params">uiFormAsset</span>, <span class="params">m_UIFormHelper</span>.InstantiateUIForm(<span class="params">openUIFormInfo</span>.Name, <span class="params">uiFormAsset</span>)</span>, m_UIFormHelper);</span><br></pre></td></tr></table></figure>
+<p>对IUIFormHelper接口的扩展需要添加UI名，代码如下:</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public interface IUIFormHelper</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">object</span> <span class="constructor">InstantiateUIForm(<span class="params">string</span> <span class="params">uiFormName</span>, <span class="params">object</span> <span class="params">uiFormAsset</span>)</span>;</span><br><span class="line"></span><br><span class="line">        IUIForm <span class="constructor">CreateUIForm(<span class="params">object</span> <span class="params">uiFormInstance</span>, IUIGroup <span class="params">uiGroup</span>, <span class="params">object</span> <span class="params">userData</span>)</span>;</span><br><span class="line"></span><br><span class="line">        void <span class="constructor">ReleaseUIForm(<span class="params">object</span> <span class="params">uiFormAsset</span>, <span class="params">object</span> <span class="params">uiFormInstance</span>)</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>这样GF中的扩展就完成了，接下来时UGF中的扩展，除了需要修改UIComponent中OpenUIForm的对应方法，剩下就是添加一个FGUI的UIFormHelper和UIGroupHelper了<br>首先时UIFormHelper(核心代码):</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public <span class="keyword">class</span> FGUIFormHelper : UIFormHelperBase</span><br><span class="line">&#123;</span><br><span class="line">    public override <span class="keyword">object</span> <span class="constructor">InstantiateUIForm(<span class="params">string</span> <span class="params">uiFormName</span>, <span class="params">object</span> <span class="params">uiFormAsset</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        Object obj = (Object)uiFormAsset;</span><br><span class="line">        TextAsset text = uiFormAsset <span class="keyword">as</span> TextAsset;</span><br><span class="line">        AssetBundle bundle = AssetBundle.<span class="constructor">LoadFromMemory(<span class="params">text</span>.<span class="params">bytes</span>)</span>;</span><br><span class="line">        UIPackage package = UIPackage.<span class="constructor">AddPackage(<span class="params">bundle</span>)</span>;</span><br><span class="line">        GObject inst = package.<span class="constructor">CreateObject(<span class="params">uiFormName</span>)</span>;</span><br><span class="line">        return inst;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public override IUIForm <span class="constructor">CreateUIForm(<span class="params">object</span> <span class="params">uiFormInstance</span>, IUIGroup <span class="params">uiGroup</span>, <span class="params">object</span> <span class="params">userData</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        GObject inst = uiFormInstance <span class="keyword">as</span> GObject;</span><br><span class="line">        <span class="keyword">if</span> (inst<span class="operator"> == </span>null)</span><br><span class="line">        &#123;</span><br><span class="line">            Log.<span class="constructor">Error(<span class="string">&quot;FGUI GObject is invalid.&quot;</span>)</span>;</span><br><span class="line">            return null;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="module-access"><span class="module"><span class="identifier">GRoot</span>.</span></span>inst.<span class="constructor">AddChild(<span class="params">inst</span>)</span>;</span><br><span class="line">        return FGUIForm.<span class="constructor">Create(<span class="params">inst</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这里的代码还可以优化，比如UIPackage可以存储为成员变量等，先理清思路吧。接着时UIGroupHelper的实现，这个接口只有一个深度的设置，很简单。</p>
+<p>扩展完成后就是调用了, FGUI和UGUI都可以这样调用：</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">UI</span>.<span class="type">OpenUIForm</span>(<span class="string">&quot;ActionUI&quot;</span>, <span class="string">&quot;Assets/GameMain/Data/ui.bytes&quot;</span>, <span class="string">&quot;UI&quot;</span>, <span class="class"><span class="keyword">data</span>);</span></span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/GameFramework/" rel="tag"># GameFramework</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/03/16/graphics-1/" rel="prev" title="图形学-空间变换的学习和思考">
+      <i class="fa fa-chevron-left"></i> 图形学-空间变换的学习和思考
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E4%BA%8EGameFramework%E5%AF%B9FGUI%E7%9A%84%E6%89%A9%E5%B1%95%E7%9A%84%E6%80%9D%E8%80%83"><span class="nav-number">1.</span> <span class="nav-text">关于GameFramework对FGUI的扩展的思考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%91%E7%9A%84%E6%83%B3%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">我的想法:</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">蒙</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ximengcs" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ximengcs" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">蒙</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
