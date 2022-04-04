@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ximengcs.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="概述FGUI有编辑器端和平台SDK端，这里就分析UnitySDK。编辑器里可以将设计好的UI发布为描述文件和图集，描述文件里存储了标头，版本，UI布局等信息，之后在Unity端解析描述文件和图集(通过UIPackage加载)，通过FGUI自己的一套渲染流程，本质上就是封装了Unity的Mesh，通过MeshRender并且设置FGUI的shader,设置渲染数据来渲染UI, 然后使用者就可以调用F">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FGUI 源码剖析">
+<meta property="og:url" content="https://ximengcs.github.io/ximengcs.github.io/2022/04/04/src-fgui-1/index.html">
+<meta property="og:site_name" content="归来仍是少年">
+<meta property="og:description" content="概述FGUI有编辑器端和平台SDK端，这里就分析UnitySDK。编辑器里可以将设计好的UI发布为描述文件和图集，描述文件里存储了标头，版本，UI布局等信息，之后在Unity端解析描述文件和图集(通过UIPackage加载)，通过FGUI自己的一套渲染流程，本质上就是封装了Unity的Mesh，通过MeshRender并且设置FGUI的shader,设置渲染数据来渲染UI, 然后使用者就可以调用F">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ximengcs.github.io/2022/04/04/src-fgui-1/2022-04-04_131131.png">
+<meta property="og:image" content="https://ximengcs.github.io/2022/04/04/src-fgui-1/2022-04-04_161358.png">
+<meta property="article:published_time" content="2022-04-04T05:09:36.000Z">
+<meta property="article:modified_time" content="2022-04-04T08:43:49.667Z">
+<meta property="article:author" content="蒙">
+<meta property="article:tag" content="FGUI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ximengcs.github.io/2022/04/04/src-fgui-1/2022-04-04_131131.png">
+
+<link rel="canonical" href="https://ximengcs.github.io/ximengcs.github.io/2022/04/04/src-fgui-1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>FGUI 源码剖析 | 归来仍是少年</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">归来仍是少年</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">种下一颗树最好的时间是十年前，其次就是现在。</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ximengcs.github.io/ximengcs.github.io/2022/04/04/src-fgui-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="蒙">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="归来仍是少年">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          FGUI 源码剖析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-04-04 13:09:36 / 修改时间：16:43:49" itemprop="dateCreated datePublished" datetime="2022-04-04T13:09:36+08:00">2022-04-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/FGUI/" itemprop="url" rel="index"><span itemprop="name">FGUI</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>FGUI有编辑器端和平台SDK端，这里就分析UnitySDK。编辑器里可以将设计好的UI发布为描述文件和图集，描述文件里存储了标头，版本，UI布局等信息，之后在Unity端解析描述文件和图集(通过UIPackage加载)，通过FGUI自己的一套渲染流程，本质上就是封装了Unity的Mesh，通过MeshRender并且设置FGUI的shader,设置渲染数据来渲染UI, 然后使用者就可以调用FGUI提供的接口使用UI了。</p>
+<h1 id="目录结构"><a href="#目录结构" class="headerlink" title="目录结构"></a>目录结构</h1><p>FGUI主要有两个大的目录</p>
+<img src="/2022/04/04/src-fgui-1/2022-04-04_131131.png" class="" title="运行截图">
+<p>Resources中存放了渲染FGUI中文字和图片的shader。Scripts中当然是存档了FGUI的核心代码了。</p>
+<h2 id="Scrips"><a href="#Scrips" class="headerlink" title="Scrips"></a>Scrips</h2><p>Core里面存放了FGUI的UI舞台Stage还有UI相机和渲染类，UI里面存放了和编辑器相对应的各种UI类，UI根节点GRoot，还有UIPackage。</p>
+<h3 id="UIPackage"><a href="#UIPackage" class="headerlink" title="UIPackage"></a>UIPackage</h3><p>UIPackage的主要作用有两个，其一是加载编辑器中发布的描述文件和图集，还有就是创建出UI类。<br>加载描述文件的核心代码：</p>
+<span id="more"></span>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">LoadPackage</span><span class="params">(ByteBuffer buffer, string assetNamePrefix)</span></span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (buffer.<span class="built_in">ReadUint</span>() != <span class="number">0x46475549</span>)</span><br><span class="line">                old package...</span><br><span class="line"></span><br><span class="line">            buffer.version = buffer.<span class="built_in">ReadInt</span>();</span><br><span class="line">            id = buffer.<span class="built_in">ReadString</span>();</span><br><span class="line"></span><br><span class="line">            ...</span><br><span class="line">            cnt = buffer.<span class="built_in">ReadShort</span>();</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; cnt; i++)</span><br><span class="line">                _dependencies[i] = kv;</span><br><span class="line"></span><br><span class="line">            cnt = buffer.<span class="built_in">ReadShort</span>();</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; cnt; i++)</span><br><span class="line">            &#123;</span><br><span class="line">                pi = <span class="keyword">new</span> <span class="built_in">PackageItem</span>();</span><br><span class="line">                pi.owner = <span class="keyword">this</span>;</span><br><span class="line">                pi.type = (PackageItemType)buffer.<span class="built_in">ReadByte</span>();</span><br><span class="line">                ...</span><br><span class="line"></span><br><span class="line">                <span class="built_in"><span class="keyword">switch</span></span> (pi.type)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">case</span> PackageItemType.Image:</span><br><span class="line">                        ...</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">case</span> PackageItemType.MovieClip:</span><br><span class="line">                        ...</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">case</span> PackageItemType.Font:</span><br><span class="line">                        ...</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">case</span> PackageItemType.Component:</span><br><span class="line">                        ...</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">case</span> PackageItemType.Atlas:</span><br><span class="line">                    <span class="keyword">case</span> PackageItemType.Sound:</span><br><span class="line">                    <span class="keyword">case</span> PackageItemType.Misc:</span><br><span class="line">                        ...</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">case</span> PackageItemType.Spine:</span><br><span class="line">                    <span class="keyword">case</span> PackageItemType.DragoneBones:</span><br><span class="line">                        ...</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                ...</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            cnt = buffer.<span class="built_in">ReadShort</span>();</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; cnt; i++)</span><br><span class="line">            &#123;</span><br><span class="line">                ...</span><br><span class="line">                AtlasSprite sprite = <span class="keyword">new</span> <span class="built_in">AtlasSprite</span>();</span><br><span class="line">                sprite.atlas = pi;</span><br><span class="line">                sprite.rect.x = buffer.<span class="built_in">ReadInt</span>();</span><br><span class="line">                sprite.rect.y = buffer.<span class="built_in">ReadInt</span>();</span><br><span class="line">                sprite.rect.width = buffer.<span class="built_in">ReadInt</span>();</span><br><span class="line">                sprite.rect.height = buffer.<span class="built_in">ReadInt</span>();</span><br><span class="line">                sprite.rotated = buffer.<span class="built_in">ReadBool</span>();</span><br><span class="line">                ...</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到FGUI首先会验证版本等一些系统信息，之后就是将编辑器中每个UI描述文件加载成<strong>PackageItem</strong>，图标加载成<strong>AtlasSprite</strong>。<br>创建的核心代码(简化后的):</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> GObject CreateObject(string resName)</span><br><span class="line">        &#123;</span><br><span class="line">            PackageItem pi;</span><br><span class="line">            <span class="keyword">if</span> (!_itemsByName.TryGetValue(resName, out pi))</span><br><span class="line">                ...</span><br><span class="line">            </span><br><span class="line">            Stats.LatestObjectCreation = <span class="number">0</span>;</span><br><span class="line">            Stats.LatestGraphicsCreation = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">            GetItemAsset(packageItem);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">switch</span> (type)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">case</span> ObjectType.Image:<span class="type"></span></span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">GImage</span>();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">case</span> ObjectType.MovieClip:<span class="type"></span></span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">GMovieClip</span>();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">case</span> ObjectType.Component:<span class="type"></span></span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">GComponent</span>();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">case</span> ObjectType.Text:<span class="type"></span></span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">GTextField</span>();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">case</span> ObjectType.RichText:<span class="type"></span></span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> <span class="type">GRichTextField</span>();</span><br><span class="line"></span><br><span class="line">                ...</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            _constructing++;</span><br><span class="line">            g.ConstructFromResource();</span><br><span class="line">            _constructing--;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> g;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>创建UI时首先会查找通过之前加载到的<strong>PackageItem</strong>信息，然后调用GetItemAsset方法去加载描述信息的资源，因为初次加载描述信息时并不会加载对应的资源，而是在第一次创建时加载。GetItemAsset中会缓存加载到的资源，并重复利用。<br>资源加载完成后就会通过UI的类型来创建对应的UI(仅仅是通过构造函数)，然后会调用一个关键的方法ConstructFromResource，这个方法是GObject的一个虚方法，由各个UI实现类需要时去重写，主要是初始化在编辑器里设置的一些选项，如宽度，高度，或者图片，是否9切片等。<br>创建时还会记录各种统计信息(简化):</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">Stats.LatestObjectCreation</span> = <span class="number">0</span><span class="comment">;</span></span><br><span class="line"><span class="attr">Stats.LatestGraphicsCreation</span> = <span class="number">0</span><span class="comment">;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="核心类"><a href="#核心类" class="headerlink" title="核心类"></a>核心类</h3><p><strong>EventListener</strong><br>事件分发器，用来管理FGUI中所有UI的事件，onClick,OnTouch等，可以添加Event或者Capture，两种事件的区别就是Event会以冒泡的方式分发事件，也就是底-&gt;顶，而Capture则为顶-&gt;底。并且<strong>Event会在所有的Capture事件分发完成后才会开始分发</strong></p>
+<p><strong>NTexture</strong><br>表示了UI中的单个纹理资源，封装了Unity的纹理资源Texture，由于FGUI发布的是图集，一张大图里存放了多个纹理，所以FGUI用NTexture封装了单个纹理(实际上是提供了一些偏移信息和Rect，单个纹理的原始大小等关键信息)。</p>
+<p><strong>NGraphics</strong><br>用来绘制UI的网格Mesh，所有的UI都需要用这个类来绘制，封装了Unity的Mesh, MeshFilter, MeshRender，通过标记Mesh为动态来处理各种动态修改：</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mesh.MarkDynamic()<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<p>并且在更新方法中调用了IMeshFactory的OnPopulateMesh方法:</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_meshFactory.<span class="constructor">OnPopulateMesh(<span class="params">vb</span>)</span>;</span><br></pre></td></tr></table></figure>
+<p>Image，TextField都实现了OnPopulateMesh来生成自己的网格数据</p>
+<p><strong>DisplayObject</strong><br>显示对象，封装了NGraphics，并且继承了EventListener，以及UI中的一些事件, 封装了大部分基础属性，如位置，缩放，大小，层等。DisplayObject下实现了一个DisplayObjectInfo，不过这个类的作用仅仅是在被销毁时设置一个销毁标志，还有在Inspector面板显示Info。 DisplayObject有一个生命周期Update方法，每次调用时会渲染一帧:</p>
+<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">virtual public void Update(UpdateContext context)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="variable">_checkPixelPerfect</span> != <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="variable">_rotation</span> == Vector3.zero)</span><br><span class="line">                &#123;</span><br><span class="line">                    Vector3 v = cachedTransform.localPosition;</span><br><span class="line">                    v.x = Mathf.<span class="built_in">Round</span>(v.x);</span><br><span class="line">                    v.y = Mathf.<span class="built_in">Round</span>(v.y);</span><br><span class="line">                    <span class="variable">_pixelPerfectAdjustment</span> = v - cachedTransform.localPosition;</span><br><span class="line">                    <span class="keyword">if</span> (<span class="variable">_pixelPerfectAdjustment</span> != Vector3.zero)</span><br><span class="line">                        cachedTransform.localPosition = v;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="variable">_checkPixelPerfect</span> = <span class="number">0</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (graphics != null)</span><br><span class="line">                graphics.Update(context, context.alpha * <span class="variable">_alpha</span>, context.grayed | <span class="variable">_grayed</span>);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (<span class="variable">_paintingMode</span> != <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                UpdatePainting();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (!(this is Container))</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">if</span> ((<span class="variable">_flags</span> &amp; Flags.CacheAsBitmap) == <span class="number">0</span> || <span class="variable">_paintingInfo</span>.<span class="built_in">flag</span> != <span class="number">2</span>)</span><br><span class="line">                        UpdateContext.OnEnd += <span class="variable">_paintingInfo</span>.captureDelegate;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                paintingGraphics.Update(context, <span class="number">1</span>, <span class="literal">false</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (<span class="variable">_filter</span> != null)</span><br><span class="line">                <span class="variable">_filter</span>.Update();</span><br><span class="line"></span><br><span class="line">            Stats.ObjectCount++;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>所以要渲染出对象，就需要上次实现来调用这个Update</p>
+<p><strong>Container</strong><br>Container管理了一个显示列表作为一个DisplayObject的容器，可以添加或移除显示对象DisplayObject(作为它的Child)，它还实现了渲染模式(相机空间，世界空间)，以及UI的点击检测。<br>它也继承了DisplayObject，并且重写了Update方法，会调用存储的孩子对象的Update。所以它也需要上层来调用这个Update。</p>
+<p><strong>Stage</strong><br>Stage管理了所有UI对象的更新，点击检测，声音播放，核心事件。Stage继承了Container，并且重写了Update方法，调用所有在Stage中的显示对象DisplayObject。而Stage的Update由StageEngine来每帧调用，StageEngine核心代码:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StageEngine</span> :</span> MonoBehaviour</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">int</span> ObjectsOnStage;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">int</span> GraphicsOnStage;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">bool</span> beingQuit;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">Start</span><span class="params">()</span></span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            useGUILayout = <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">LateUpdate</span><span class="params">()</span></span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            Stage.inst.<span class="built_in">InternalUpdate</span>();</span><br><span class="line"></span><br><span class="line">            ObjectsOnStage = Stats.ObjectCount;</span><br><span class="line">            GraphicsOnStage = Stats.GraphicsCount;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>StageEngine是一个MonoBehavior，可以看到Stage UI是在LateUpdate中更新的。</p>
+<p><strong>GRoot</strong><br>先说GRoot，GRoot和Stage都是单例，它两在初始化时就是两个都初始化:</p>
+<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> GRoot inst</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">get</span></span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">if</span> (_inst == <span class="literal">null</span>)</span><br><span class="line">                    Stage.Instantiate();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> _inst;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>而Stage中:</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public static void <span class="constructor">Instantiate()</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (_inst<span class="operator"> == </span>null)</span><br><span class="line">            &#123;</span><br><span class="line">                _inst = <span class="keyword">new</span> <span class="constructor">Stage()</span>;</span><br><span class="line">                <span class="module-access"><span class="module"><span class="identifier">GRoot</span>.</span><span class="module"><span class="identifier">_inst</span> </span></span>= <span class="keyword">new</span> <span class="constructor">GRoot()</span>;</span><br><span class="line">                <span class="module-access"><span class="module"><span class="identifier">GRoot</span>.</span><span class="module"><span class="identifier">_inst</span>.</span><span class="module"><span class="identifier">ApplyContentScaleFactor</span>(</span></span>);</span><br><span class="line">                _inst.<span class="constructor">AddChild(GRoot.<span class="params">_inst</span>.<span class="params">displayObject</span>)</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到Stage在初始化完毕后，会将GRoot的显示对象DisplayObject添加到自己的孩子列表中(Stage是一个Container)，这样就不难理解为什么UI对象只有在添加到GRoot中才能显示出来了。<br>GRoot实际上就是管理通过Container管理了所有的UI，然后实现了显示窗口和PopupUI的一些方法，窗口实际上还是通过自己的Container添加，而PopupUI实现了单独的管理。</p>
+<p><strong>GObject</strong><br>GObject继承了EventListener事件分发器，封装了显示对象Displayobject，PackageItem和所有的UI基本属性，所有的基本UI事件。</p>
+<p><strong>GComponent</strong><br>GComponent继承了GObject，额外封装了Container，并且管理了一个GObject列表，管理了其中所有的孩子, 包括添加移除等，添加时它会将待添加元素GObject的显示对象Di是playObject添加到自己的Container中:</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">container.<span class="constructor">AddChildAt(<span class="params">child</span>.<span class="params">displayObject</span>, <span class="params">index</span>)</span>;</span><br></pre></td></tr></table></figure>
+<p>而GRoot也是继承了GComponent，来管理它的孩子对象。</p>
+<p><strong>GImage, GTextField, GList…</strong><br>理解以上的类后，这些UI实现类都是通过继承或封装GObject， GComponent来实现自己的基本功能。</p>
+<p><strong>UIPanel</strong><br>UIPanel不需要添加到GRoot中，只需要将UI对象添加到Panel中就可以显示出来，原因是因为UIPanel封装了Container.其中一句关键的代码</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="module-access"><span class="module"><span class="identifier">Stage</span>.</span></span>inst.<span class="constructor">ApplyPanelOrder(<span class="params">container</span>)</span>;</span><br></pre></td></tr></table></figure>
+<p>会将UIPanel中的Container添加到Stage的管理列表中，并通过StageEngine来进行更新。<br>而在编辑模式下，UIPanel的更新方法是通过EMRenderSupport来进行管理并更新的, 而EMRenderSupport会被StageCamera调用处理:</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">void</span> EMRenderSupport.<span class="title">Update</span><span class="params">()</span></span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (Application.isPlaying)</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (_updateContext == <span class="keyword">null</span>)</span><br><span class="line">                _updateContext = <span class="keyword">new</span> UpdateContext();</span><br><span class="line"></span><br><span class="line">            ...</span><br><span class="line">            <span class="keyword">if</span> (packageListReady)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; cnt; i++)</span><br><span class="line">                &#123;</span><br><span class="line">                    panel.EM_Update(_updateContext);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            ...</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">void StageCamera.<span class="constructor">OnRenderObject()</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (isMain<span class="operator"> &amp;&amp; </span>!<span class="module-access"><span class="module"><span class="identifier">Application</span>.</span></span>isPlaying)</span><br><span class="line">            &#123;</span><br><span class="line">                EMRenderSupport.<span class="constructor">Update()</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<img src="/2022/04/04/src-fgui-1/2022-04-04_161358.png" class="" title="运行截图">
+
+<h3 id="其他类"><a href="#其他类" class="headerlink" title="其他类"></a>其他类</h3><h4 id="Core-HitTest"><a href="#Core-HitTest" class="headerlink" title="Core/HitTest"></a>Core/HitTest</h4><p>存放了关于点击检测的类，实现了IHitTest接口可以检测是否点击到区域，Container中管理了一个HitArea用来检测点击。<br>还有各种实现如<strong>ColliderHitTest</strong>碰撞体点击实现，<strong>MeshColliderHitTest</strong>Mesh碰撞体检测，<strong>RectHitTest</strong>区域检测等。</p>
+<h4 id="Core-Mesh"><a href="#Core-Mesh" class="headerlink" title="Core/Mesh"></a>Core/Mesh</h4><p>实现了各种类型的Mesh数据生成，如FillMesh填充，LineMesh线等。IMeshFactory和VertexBuffer也在这里。VertexBuffer就是顶点数据的缓存，IMeshFactory的接口OnPopulateMesh被这里的各种实现类实现，它会在绘制更新中被调用(如NGraphics的Update中)。</p>
+<h4 id="Core-Stats"><a href="#Core-Stats" class="headerlink" title="Core/Stats"></a>Core/Stats</h4><p>FGUI运行时的各种统计信息</p>
+<h4 id="Event"><a href="#Event" class="headerlink" title="Event"></a>Event</h4><p>FGUI的UI事件实现：<br><strong>EventDispatcher</strong>, 管理了一个EventBridge，用来分发各种UI事件和Capture，事件的派发通过EventBridge<br><strong>EventBridge</strong>，可以添加移除事件监听和Capture<br><strong>EventListener</strong>, 事件监听器，封装了EventBridge，触发事件时通过Bridge来调用EventDispatcher的分发事件方法</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="module-access"><span class="module"><span class="identifier">_bridge</span>.</span></span>owner.<span class="constructor">InternalDispatchEvent(<span class="params">_type</span>, <span class="params">_bridge</span>, <span class="params">null</span>, <span class="params">null</span>)</span>;</span><br></pre></td></tr></table></figure>
+<p><strong>EventContext</strong>, 事件上下文，派发事件的上下文数据, 监听者收到事件时可以解析里面的数据来处理, 包含了InputEvent数据。<br><strong>InputEvent</strong> 封装了Unity中的输入数据，如KeyCode等。</p>
+<h4 id="Filter"><a href="#Filter" class="headerlink" title="Filter"></a>Filter</h4><p><strong>IFilter</strong> 这个接口有Update和Dispose方法，和一个Displayobject的属性，Update方法会在Displayobject的更新法中最后阶段被调用，可以实现各种效果, 这里的<strong>BlurFilter</strong>和<strong>ColorFilter</strong>就是两个实现</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">virtual</span> public void <span class="constructor">Update(UpdateContext <span class="params">context</span>)</span></span><br><span class="line">        &#123;<span class="operator"></span></span><br><span class="line"><span class="operator">            ...</span></span><br><span class="line"><span class="operator">            </span>graphics.<span class="constructor">Update(<span class="params">context</span>, <span class="params">context</span>.<span class="params">alpha</span> <span class="operator">*</span> <span class="params">_alpha</span>, <span class="params">context</span>.<span class="params">grayed</span> | <span class="params">_grayed</span>)</span>;<span class="operator"></span></span><br><span class="line"><span class="operator">            ...</span></span><br><span class="line"><span class="operator">            </span>paintingGraphics.<span class="constructor">Update(<span class="params">context</span>, 1, <span class="params">false</span>)</span>;<span class="operator"></span></span><br><span class="line"><span class="operator">            ...</span></span><br><span class="line"><span class="operator"></span></span><br><span class="line"><span class="operator">            </span><span class="keyword">if</span> (_filter != null)</span><br><span class="line">                _filter.<span class="constructor">Update()</span>;</span><br><span class="line"></span><br><span class="line">            Stats.ObjectCount++;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Gesture"><a href="#Gesture" class="headerlink" title="Gesture"></a>Gesture</h4><p>操作手势相关的实现类，继承了EventDispatcher来分派手势相关的事件</p>
+<h4 id="Tween"><a href="#Tween" class="headerlink" title="Tween"></a>Tween</h4><p>实现了UI的补间方法</p>
+<h4 id="UI"><a href="#UI" class="headerlink" title="UI"></a>UI</h4><p>对应于编辑器中的各种UI实现类，GComponent, GButton, GList, GLoader …, 基类GObject</p>
+<h4 id="Utils"><a href="#Utils" class="headerlink" title="Utils"></a>Utils</h4><p>各种工具类，UBB的处理，XML处理，Zip处理，HTML处理，计时器Timer …</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/FGUI/" rel="tag"># FGUI</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/03/19/GF-ui-fgui-1/" rel="prev" title="GameFramework框架扩展-FGUI">
+      <i class="fa fa-chevron-left"></i> GameFramework框架扩展-FGUI
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">目录结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Scrips"><span class="nav-number">2.1.</span> <span class="nav-text">Scrips</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UIPackage"><span class="nav-number">2.1.1.</span> <span class="nav-text">UIPackage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E7%B1%BB"><span class="nav-number">2.1.2.</span> <span class="nav-text">核心类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%B1%BB"><span class="nav-number">2.1.3.</span> <span class="nav-text">其他类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Core-HitTest"><span class="nav-number">2.1.3.1.</span> <span class="nav-text">Core&#x2F;HitTest</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Core-Mesh"><span class="nav-number">2.1.3.2.</span> <span class="nav-text">Core&#x2F;Mesh</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Core-Stats"><span class="nav-number">2.1.3.3.</span> <span class="nav-text">Core&#x2F;Stats</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Event"><span class="nav-number">2.1.3.4.</span> <span class="nav-text">Event</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Filter"><span class="nav-number">2.1.3.5.</span> <span class="nav-text">Filter</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Gesture"><span class="nav-number">2.1.3.6.</span> <span class="nav-text">Gesture</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Tween"><span class="nav-number">2.1.3.7.</span> <span class="nav-text">Tween</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#UI"><span class="nav-number">2.1.3.8.</span> <span class="nav-text">UI</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Utils"><span class="nav-number">2.1.3.9.</span> <span class="nav-text">Utils</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">蒙</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ximengcs" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ximengcs" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">蒙</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
