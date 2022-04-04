@@ -33,7 +33,7 @@
 <meta property="og:image" content="https://ximengcs.github.io/2022/03/16/graphics-1/vspj.png">
 <meta property="og:image" content="https://ximengcs.github.io/2022/03/16/graphics-1/wstf2.png">
 <meta property="article:published_time" content="2022-03-16T13:43:41.000Z">
-<meta property="article:modified_time" content="2022-03-16T15:28:04.764Z">
+<meta property="article:modified_time" content="2022-04-04T08:49:31.943Z">
 <meta property="article:author" content="蒙">
 <meta property="article:tag" content="变换">
 <meta name="twitter:card" content="summary">
@@ -190,10 +190,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-03-16 21:43:41 / 修改时间：23:28:04" itemprop="dateCreated datePublished" datetime="2022-03-16T21:43:41+08:00">2022-03-16</time>
+              <time title="创建时间：2022-03-16 21:43:41" itemprop="dateCreated datePublished" datetime="2022-03-16T21:43:41+08:00">2022-03-16</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-04-04 16:49:31" itemprop="dateModified" datetime="2022-04-04T16:49:31+08:00">2022-04-04</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -231,7 +237,7 @@
 <h2 id="相机空间-View-Space"><a href="#相机空间-View-Space" class="headerlink" title="相机空间(View Space)"></a>相机空间(View Space)</h2><p>物体放置在场景上了，需要从一个视角来“观察”，这个视角就是摄像机，相机空间也就是以相机为原点的坐标空间。将坐标从<strong>世界空间</strong>变换到相机空间也是通过矩阵来完成，这个矩阵即相机空间。<br>将相机空间的坐标变换到世界空间也就是进行一次仿射变换（旋转，缩放，平移），那么将世界坐标变换到相机空间就是相反的操作求逆，只需要求出这个逆矩阵就可变换。<br>世界空间到相机空间的计算：</p>
 <img src="/2022/03/16/graphics-1/vspj.png" class="" title="世界矩阵">
 <img src="/2022/03/16/graphics-1/wstf2.png" class="" title="世界矩阵">
-<p>只需要知道相机的Z轴，也就是观察方向，然后求出 相机原点到世界原点的向量PO和Z向量的叉积，即可求出Y轴基向量，然后再求出Z轴和Y轴的叉积就可求出X轴。<br>有了相机的基向量就可得到变换矩阵[i, j, k]，再求逆就可求出视图矩阵</p>
+<p>只需要知道相机的Z轴(也就是观察方向)和世界空间的一个方向，然后求出 相机Z轴和世界空间Y向量的叉积，即可求出相机的Y轴基向量，然后再求出Z轴和Y轴的叉积就可求出X轴。<br>有了相机的基向量和相机的位置就可得到变换矩阵[i, j, k]，再求逆就可求出视图矩阵</p>
 <h2 id="裁剪空间-Clip-Space"><a href="#裁剪空间-Clip-Space" class="headerlink" title="裁剪空间(Clip Space)"></a>裁剪空间(Clip Space)</h2><p>相机空间中只有在“视野”范围内的物体才会被渲染，在视野范围外的物体不应该被处理，所以需要剔除，裁剪空间中的物体就是要被渲染的物体，裁剪空间外的物体将会被剔除。<br>而裁剪矩阵的作用就是将相机空间的坐标变换到裁剪空间，实际上就是变换到坐标的投影处。常用的投影矩阵是正交矩阵和透视矩阵。正交矩阵投影到的空间直接就对应归一化坐标空间，透视矩阵投影到的空间是(x’z, y’z, z’z, z)，除以w之后也是归一化坐标空间。</p>
 <h2 id="归一化坐标空间-NDC-Space"><a href="#归一化坐标空间-NDC-Space" class="headerlink" title="归一化坐标空间(NDC Space)"></a>归一化坐标空间(NDC Space)</h2><p>一般将 -1 &lt;= x &lt;= 1， -1 &lt;= y &lt;= 1, 0 &lt;= z &lt;= 1定义为归一化坐标空间，以方便变换到屏幕空间</p>
 <h2 id="屏幕空间"><a href="#屏幕空间" class="headerlink" title="屏幕空间"></a>屏幕空间</h2><p>经过视口变换的空间就是屏幕空间</p>
