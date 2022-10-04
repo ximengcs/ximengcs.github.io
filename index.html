@@ -157,6 +157,76 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ximengcs.github.io/ximengcs.github.io/2022/10/04/et/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="蒙">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="归来仍是少年">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/10/04/et/" class="post-title-link" itemprop="url">ET学习笔记 一</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-10-04 11:08:55 / 修改时间：11:44:27" itemprop="dateCreated datePublished" datetime="2022-10-04T11:08:55+08:00">2022-10-04</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="项目结构"><a href="#项目结构" class="headerlink" title="项目结构"></a>项目结构</h4><p>打开ET的vs项目文件，有三个文件夹:</p>
+<img src="/2022/10/04/et/2022-10-04_111313.png" class="" title="文件结构">
+<h3 id="DotNet"><a href="#DotNet" class="headerlink" title="DotNet"></a>DotNet</h3><p>这个文件夹存放的是服务器项目代码，当然服务器项目也包含了客户端逻辑层的代码，为的是能直接引用客户端代码。</p>
+
+<p>服务器的入口程序集是DotNet.App，入口程序类为 <strong>Init</strong>, DotNet.Core存放了框架的一些核心设计代码，比如核心类Game，单例类等。DotNet.Model存放游戏的不热更部分的逻辑，如游戏入口Entry就存放在此。DotNet.Hotfix存放了便于热更新的逻辑，比如游戏里的AI逻辑。DotNet.ThirdParty存放了第三方库，比如kcp就存放在此。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/10/04/et/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://ximengcs.github.io/ximengcs.github.io/2022/04/11/csharp-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -700,7 +770,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -713,7 +783,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
