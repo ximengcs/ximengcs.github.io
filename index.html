@@ -157,6 +157,92 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ximengcs.github.io/ximengcs.github.io/2024/06/11/unity_async/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="蒙">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="归来仍是少年">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/06/11/unity_async/" class="post-title-link" itemprop="url">Unity-异步和协程</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-06-11 23:44:37 / 修改时间：01:07:17" itemprop="dateCreated datePublished" datetime="2024-06-11T23:44:37+08:00">2024-06-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Unity/" itemprop="url" rel="index"><span itemprop="name">Unity</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><strong>unity中的异步和协程有很多相似之处，如以下代码中延迟一秒后请求一个链接：</strong></p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">IEnumerator <span class="title">CoroutineTest</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="function">yield <span class="keyword">return</span> <span class="keyword">new</span> <span class="title">WaitForSeconds</span><span class="params">(<span class="number">1</span>)</span></span>;</span><br><span class="line">  yield <span class="keyword">return</span> UnityWebRequest.<span class="built_in">Get</span>(<span class="string">&quot;www.baidu.com&quot;</span>);</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">void</span> <span class="function"><span class="title">AsyncTest</span>(<span class="params"></span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">await</span> Task.Delay(<span class="number">1000</span>);</span><br><span class="line">  <span class="keyword">await</span> UnityWebRequest.Get(<span class="string">&quot;www.baidu.com&quot;</span>).SendWebRequest();</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> TaskAwaiter <span class="function"><span class="title">GetAwaiter</span>(<span class="params"><span class="built_in">this</span> AsyncOperation asyncOp</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">var</span> tcs = <span class="keyword">new</span> TaskCompletionSource&lt;<span class="built_in">object</span>&gt;();</span><br><span class="line">  asyncOp.completed += <span class="function"><span class="params">obj</span> =&gt;</span> &#123; tcs.SetResult(<span class="literal">null</span>); &#125;;</span><br><span class="line">  <span class="keyword">return</span> ((Task)tcs.Task).GetAwaiter();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到它们可实现相同或者类似的功能，但它们的原理是不同的。</p>
+<p><strong>协程</strong></p>
+<p>首先协程在Unity中的原理是不断迭代一个迭代器(IEnumerator)的状态，而迭代器中的状态就是要执行的代码，</p>
+<p>通过查看生成的IL中间代码(经简化):</p>
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">.class nested private sealed auto ansi beforefieldinit <span class="string">&#x27;&lt;CoroutineTest&gt;d__4&#x27;</span></span><br><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">  .method private <span class="symbol">MoveNext</span>()</span><br><span class="line">  &#123;</span><br><span class="line">​    ...</span><br><span class="line">​    <span class="symbol">IL_0001</span>: ldfld    int32 <span class="symbol">Enter</span>/<span class="string">&#x27;&lt;CoroutineTest&gt;d__4&#x27;</span>::<span class="string">&#x27;&lt;&gt;1__state&#x27;</span></span><br><span class="line">​    <span class="symbol">IL_0008</span>: switch    (<span class="symbol">IL_0023</span>, <span class="symbol">IL_004d</span>)</span><br><span class="line">​    ...</span><br><span class="line">​    <span class="symbol">IL_0023</span>: new <span class="symbol">WaitForSeconds</span></span><br><span class="line">​    ...</span><br><span class="line">​    <span class="symbol">IL_004d</span>: <span class="symbol">UnityWebRequest</span>.<span class="symbol">Get</span></span><br><span class="line">​    ...</span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2024/06/11/unity_async/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://ximengcs.github.io/ximengcs.github.io/2022/10/04/et/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -770,20 +856,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -815,7 +901,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2022</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
